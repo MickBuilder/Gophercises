@@ -7,7 +7,6 @@ import (
 	"io"
 	"log"
 	"os"
-	"strconv"
 	"time"
 )
 
@@ -32,7 +31,6 @@ func extract_questions(file *os.File) []Question {
 		question := Question{line[0], line[1]}
 		results = append(results, question)
 	}
-
 	return results
 }
 
@@ -47,22 +45,33 @@ func main() {
 	}
 	defer file.Close()
 
-	timer := time.NewTimer(time.Duration(*limit) * time.Second)
-	<-timer.C
+	fmt.Printf("You have %d seconds to solve the problems\n", *limit)
 
 	questions := extract_questions(file)
 
+	timer := time.NewTimer(time.Duration(*limit) * time.Second)
 	user_score := 0
-	var user_ans int
+
+loop:
 	for i, question := range questions {
 		fmt.Printf("Problem #%02d: %v = ", (i + 1), question.title)
-		fmt.Scanf("%d ", &user_ans)
+		answerCh := make(chan string)
+		go func() {
+			var answer string
+			fmt.Scanf("%s\n", &answer)
+			answerCh <- answer
+		}()
 
-		if ans, _ := strconv.Atoi(question.answer); ans == user_ans {
-			user_score++
+		select {
+		case <-timer.C:
+			fmt.Println()
+			break loop
+		case answer := <-answerCh:
+			if answer == question.answer {
+				user_score++
+			}
 		}
 	}
 
 	fmt.Printf("You scored %d of %d.\n", user_score, len(questions))
-	fmt.Printf("The time limit of the quiz is %d.\n", *limit)
 }
