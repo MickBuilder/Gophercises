@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"time"
 )
 
 type Question struct {
@@ -45,6 +46,9 @@ func main() {
 		log.Fatal(err)
 	}
 	defer file.Close()
+
+	timer := time.NewTimer(time.Duration(*limit) * time.Second)
+	<-timer.C
 
 	questions := extract_questions(file)
 
