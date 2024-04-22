@@ -73,5 +73,5 @@ loop:
 		}
 	}
 
-	fmt.Printf("You scored %d of %d.\n", user_score, len(questions))
+	fmt.Printf("You scored %d of %d. [Motherfucker]\n", user_score, len(questions))
 }
